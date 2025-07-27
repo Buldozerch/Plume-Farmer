@@ -2,12 +2,13 @@
 
 ## EN:
 
-An automated tool for interacting with the Plume Testnet, designed to bridge assets from supported networks (Base, Arbitrum, Optimism) to Plume, perform swaps to achieve a target transaction count, and withdraw assets from Plume.
+An automated tool for interacting with the Plume Testnet, designed to register accounts on the Plume website, bridge assets from supported networks (Base, Arbitrum, Optimism) to Plume, perform swaps to achieve a target transaction count, and withdraw assets from Plume.
 
 ### Main Features
 
 The software automates the following tasks on the Plume Testnet:
 
+- Registering accounts on the Plume website
 - Bridging assets from Base, Arbitrum, or Optimism to Plume
 - Performing swaps on Plume to reach a target of 400 transactions
 - Withdrawing assets from Plume to a specified address or the same wallet
@@ -68,33 +69,38 @@ Settings support randomization. Use min/max ranges for random values:
    Imports wallets from `private.txt` to the database. Required before starting operations.
 
 2. **Run All Tasks (Main Process)**  
-   Executes bridging and swap tasks for all wallets, targeting 400 transactions per wallet.
+   Registers accounts on the Plume website, bridges assets, and performs swaps for all wallets, targeting 400 transactions per wallet.
 
-3. **Bridge Assets to Plume**  
+3. **Register Accounts on Plume Website**  
+   Registers wallets on the Plume website.
+
+4. **Bridge Assets to Plume**  
    Bridges assets from a supported network (Base, Arbitrum, or Optimism) to Plume for selected wallets.
 
-4. **Perform Swaps on Plume**  
+5. **Perform Swaps on Plume**  
    Executes swaps on Plume until the wallet reaches 400 transactions.
 
-5. **Withdraw Assets from Plume**  
+6. **Withdraw Assets from Plume**  
    Unwraps assets and bridges them from Plume to the address specified in `withdraw_address.txt` (if `use_withdraw_address` is true) or to the same wallet (if false).
 
-6. **Exit**  
+7. **Exit**  
    Terminates the program.
 
 ### Software Workflow
 1. Loads wallets, proxies, and withdrawal addresses from files.
 2. Initializes clients with random user agents and proxies.
-3. Checks Plume balance; skips bridging if balance exceeds 5 ETH.
-4. Selects a random source network (Base, Arbitrum, or Optimism) with a minimum balance of 0.0008 ETH for bridging.
-5. Bridges 95% of the available balance to Plume and waits for confirmation.
-6. Performs swaps on Plume until 400 transactions are reached.
-7. For withdrawal, unwraps assets and bridges 99% of the Plume balance to the specified address (or same wallet if `use_withdraw_address` is false), waiting 120-180 seconds for confirmation.
-8. Handles proxy errors with automatic replacement (if enabled).
-9. Logs results and errors to the console and database.
+3. Registers the wallet on the Plume website.
+4. Checks Plume balance; skips bridging if balance exceeds 5 ETH.
+5. Selects a random source network (Base, Arbitrum, or Optimism) with a minimum balance of 0.0005 ETH for bridging.
+6. Bridges 95% of the available balance to Plume and waits for confirmation.
+7. Performs swaps on Plume until 400 transactions are reached.
+8. For withdrawal, unwraps assets and bridges 99% of the Plume balance to the specified address (or same wallet if `use_withdraw_address` is false), waiting 120-180 seconds for confirmation.
+9. Handles proxy errors with automatic replacement (if enabled).
+10. Logs results and errors to the console and database.
 
 ### Onchain Module Functions
-- **Bridge**: Bridges assets from Base, Arbitrum, or Optimism to Plume if the source network has at least 0.0008 ETH.
+- **Register**: Registers the wallet on the Plume website.
+- **Bridge**: Bridges assets from Base, Arbitrum, or Optimism to Plume if the source network has at least 0.0005 ETH.
 - **Swap**: Performs swaps on Plume until the wallet reaches 400 transactions.
 - **Withdraw**: Unwraps assets and bridges them from Plume to the specified address or same wallet.
 
@@ -103,27 +109,28 @@ Settings support randomization. Use min/max ranges for random values:
 - Active ETH wallets (private keys)
 - Proxies (optional but recommended)
 - Installed dependencies from `requirements.txt`
-- Minimum balance of 0.0008 ETH in at least one supported network (Base, Arbitrum, or Optimism) for bridging
+- Minimum balance of 0.0005 ETH in at least one supported network (Base, Arbitrum, or Optimism) for bridging
 - Withdrawal addresses in `files/withdraw_address.txt` for withdrawal operations if `use_withdraw_address` is true
 
 ### Notes
-- The software operates on the Plume Testnet and supports bridging from Base, Arbitrum, and Optimism.
+- The software operates on the Plume Network and supports bridging from Base, Arbitrum, and Optimism.
 - Ensure proxies are reliable to avoid frequent errors.
 - The database stores wallet and proxy information for efficient management.
 - Random delays are applied to avoid detection and rate-limiting.
 - Swaps continue until 400 transactions are achieved per wallet.
-- Withdrawal requires a Plume balance greater than 5 ETH and, if `use_withdraw_address` is true, a valid address in `withdraw_address.txt`.
+- Withdrawal requires a Plume balance greater than 5 Plume and, if `use_withdraw_address` is true, a valid address in `withdraw_address.txt`.
 
 ## RU:
 
 # Plume Testnet
 
-Автоматизированный инструмент для взаимодействия с тестовой сетью Plume, предназначенный для переброски активов из поддерживаемых сетей (Base, Arbitrum, Optimism) в Plume, выполнения свопов для достижения целевого количества транзакций и вывода активов из Plume.
+Автоматизированный инструмент для взаимодействия с тестовой сетью Plume, предназначенный для регистрации аккаунтов на сайте Plume, переброски активов из поддерживаемых сетей (Base, Arbitrum, Optimism) в Plume, выполнения свопов для достижения целевого количества транзакций и вывода активов из Plume.
 
 ### Основные функции
 
 Программа автоматизирует следующие задачи в тестовой сети Plume:
 
+- Регистрация аккаунтов на сайте Plume
 - Переброска активов из Base, Arbitrum или Optimism в Plume
 - Выполнение свопов в Plume для достижения 400 транзакций
 - Вывод активов из Plume на указанный адрес или тот же кошелек
@@ -184,48 +191,53 @@ python main.py
    Импортирует кошельки из `private.txt` в базу данных. Необходимо выполнить перед началом работы.
 
 2. **Выполнение всех задач (основной процесс)**  
-   Выполняет задачи переброски и свопов для всех кошельков, нацеленных на 400 транзакций на кошелек.
+   Регистрирует аккаунты на сайте Plume, выполняет переброску активов и свопы для всех кошельков, нацеленных на 400 транзакций на кошелек.
 
-3. **Переброска активов в Plume**  
+3. **Регистрация аккаунтов на сайте Plume**  
+   Регистрирует кошельки на сайте Plume.
+
+4. **Переброска активов в Plume**  
    Перебрасывает активы из поддерживаемой сети (Base, Arbitrum или Optimism) в Plume для выбранных кошельков.
 
-4. **Выполнение свопов в Plume**  
+5. **Выполнение свопов в Plume**  
    Выполняет свопы в Plume, пока кошелек не достигнет 400 транзакций.
 
-5. **Вывод активов из Plume**  
+6. **Вывод активов из Plume**  
    Разворачивает активы и перебрасывает их из Plume на адрес, указанный в `withdraw_address.txt` (если `use_withdraw_address` равно true) или на тот же кошелек (если false).
 
-6. **Выход**  
+7. **Выход**  
    Завершает работу программы.
 
 ### Рабочий процесс программы
 1. Загружает кошельки, прокси и адреса для вывода из файлов.
 2. Инициализирует клиенты с случайными пользовательскими агентами и прокси.
-3. Проверяет баланс в Plume; пропускает переброску, если баланс превышает 5 ETH.
-4. Выбирает случайную исходную сеть (Base, Arbitrum или Optimism) с минимальным балансом 0.0008 ETH для переброски.
-5. Перебрасывает 95% доступного баланса в Plume и ожидает подтверждения.
-6. Выполняет свопы в Plume до достижения 400 транзакций.
-7. Для вывода разворачивает активы и перебрасывает 99% баланса Plume на указанный адрес (или тот же кошелек, если `use_withdraw_address` равно false), ожидая 120-180 секунд для подтверждения.
-8. Обрабатывает ошибки прокси с автоматической заменой (если включено).
-9. Логирует результаты и ошибки в консоль и базу данных.
+3. Регистрирует кошелек на сайте Plume.
+4. Проверяет баланс в Plume; пропускает переброску, если баланс превышает 5 ETH.
+5. Выбирает случайную исходную сеть (Base, Arbitrum или Optimism) с минимальным балансом 0.0005 ETH для переброски.
+6. Перебрасывает 95% доступного баланса в Plume и ожидает подтверждения.
+7. Выполняет свопы в Plume до достижения 400 транзакций.
+8. Для вывода разворачивает активы и перебрасывает 99% баланса Plume на указанный адрес (или тот же кошелек, если `use_withdraw_address` равно false), ожидая 120-180 секунд для подтверждения.
+9. Обрабатывает ошибки прокси с автоматической заменой (если включено).
+10. Логирует результаты и ошибки в консоль и базу данных.
 
 ### Функции ончейн-модуля
-- **Переброска**: Перебрасывает активы из Base, Arbitrum или Optimism в Plume, если в исходной сети есть минимум 0.0008 ETH.
-- **Свопы**: Выполняет свапы в Plume, пока кошелек не достигнет 400 транзакций.
-- **Вывод**: Разворачивает активы и перебрасывает их из Plume на указанный адрес или тот же кошелек.
+- **Регистрация**: Регистрирует кошелек на сайте Plume.
+- **Переброска**: Бриджит ETH из Base, Arbitrum или Optimism в Plume, если в исходной сети есть минимум 0.0005 ETH.
+- **Свапы**: Выполняет свапы в Plume, пока кошелек не достигнет 400 транзакций.
+- **Вывод**: Анврапает Plume и бриджит их из Plume на указанный адрес или тот же кошелек.
 
 ### Требования
 - Python 3.11+
 - Активные кошельки ETH (приватные ключи)
 - Прокси (опционально, но рекомендуется)
 - Установленные зависимости из `requirements.txt`
-- Минимальный баланс 0.0008 ETH в одной из поддерживаемых сетей (Base, Arbitrum или Optimism) для переброски
+- Минимальный баланс 0.0005 ETH в одной из поддерживаемых сетей (Base, Arbitrum или Optimism) для переброски
 - Адреса для вывода в `files/withdraw_address.txt`, если `use_withdraw_address` равно true
 
 ### Примечания
-- Программа работает в тестовой сети Plume и поддерживает переброску из Base, Arbitrum и Optimism.
+- Программа работает в сети Plume и поддерживает переброску из Base, Arbitrum и Optimism.
 - Убедитесь, что прокси надежны, чтобы избежать частых ошибок.
 - База данных хранит информацию о кошельках и прокси для эффективного управления.
 - Случайные задержки применяются для избежания обнаружения и ограничений по скорости.
 - Свопы продолжаются до достижения 400 транзакций на кошелек.
-- Для вывода требуется баланс Plume более 5 ETH и, если `use_withdraw_address` равно true, действительный адрес в `withdraw_address.txt`.
+- Для вывода требуется баланс Plume более 5 Plume и, если `use_withdraw_address` равно true, действительный адрес в `withdraw_address.txt`.

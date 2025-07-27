@@ -38,7 +38,7 @@ if os.path.exists(withdraw_file):
 else:
     withdraws = []
 
-MINIMAL_BALANCE_FOR_WORK = 0.0008
+MINIMAL_BALANCE_FOR_WORK = 0.0005
 
 
 async def add_wallets_db():
