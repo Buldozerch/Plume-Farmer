@@ -195,7 +195,15 @@ async def process_bridge(user: User, delay: bool = False):
             bridge = Bridge(user=user, client=client)
             balance = int(balance.Wei * 0.95)
             amount = TokenAmount(amount=balance, wei=True)
-            await bridge.bridge_to_plume(amount=amount)
+            bridge = await bridge.bridge_to_plume(amount=amount)
+            if bridge:
+                while True:
+                    plume_balance = await check_plume_balance(user=user)
+                    if plume_balance:
+                        return True
+                    else:
+                        logger.info(f"{user} wait for Plume Arrived")
+                        await asyncio.sleep(5)
             return True
         except Exception as e:
             logger.error(f"{user} error with bridge to Plume {e}")
