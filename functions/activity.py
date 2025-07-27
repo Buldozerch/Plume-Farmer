@@ -164,7 +164,7 @@ async def check_plume_balance(user: User):
                         continue
             else:
                 continue
-    if balance_plume:
+    if balance_plume.Ether > 5:
         return True
     else:
         return False
