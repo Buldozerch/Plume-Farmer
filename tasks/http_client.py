@@ -100,7 +100,6 @@ class BaseHttpClient:
             "cookies": self.cookies,
             "timeout": timeout,
         }
-        print(request_kwargs)
         # Add optional parameters
         if json_data is not None:
             request_kwargs["json"] = json_data
