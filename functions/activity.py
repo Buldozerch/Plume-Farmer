@@ -200,6 +200,7 @@ async def process_bridge(user: User, delay: bool = False):
                 while True:
                     plume_balance = await check_plume_balance(user=user)
                     if plume_balance:
+                        logger.success(f"{user} Plume Arrived!")
                         return True
                     else:
                         logger.info(f"{user} wait for Plume Arrived")
