@@ -31,10 +31,11 @@ def print_menu():
 
     menu.add_row("1)", "Import wallets in Data Base")
     menu.add_row("2)", "Main process for all wallets")
-    menu.add_row("3)", "Bridge ETH from ARB/OP/BASE to Plume")
-    menu.add_row("4)", "Wrap and Unwrap Plume")
-    menu.add_row("5)", "Withdraw from Plume and Send to Exchange Wallet")
-    menu.add_row("6)", "Exit")
+    menu.add_row("3)", "Register Account in Plume Portal")
+    menu.add_row("4)", "Bridge ETH from ARB/OP/BASE to Plume")
+    menu.add_row("5)", "Wrap and Unwrap Plume")
+    menu.add_row("6)", "Withdraw from Plume and Send to Exchange Wallet")
+    menu.add_row("7)", "Exit")
 
     console.print(menu)
 
@@ -67,12 +68,20 @@ async def main():
                 input()
 
             elif action == "3":
+                console.print("\n[bold cyan]Start Register process.[/]")
+                await process_tasks(specific_task="register")
+                console.print(
+                    "[bold green]Register process done. Press Enter to continue...[/]"
+                )
+                input()
+
+            elif action == "4":
                 console.print("\n[bold cyan]Start ETH Bridge to Plume.[/]")
                 await process_tasks(specific_task="bridge")
                 console.print("[bold green]Bridge done. Press Enter to continue...[/]")
                 input()
 
-            elif action == "4":
+            elif action == "5":
                 console.print("\n[bold cyan]Start Wrap/Unwrap activity.[/]")
                 await process_tasks(specific_task="swap")
                 console.print(
@@ -80,7 +89,7 @@ async def main():
                 )
                 input()
 
-            elif action == "5":
+            elif action == "6":
                 console.print("\n[bold cyan]Start Withdraw activity.[/]")
                 await process_tasks(specific_task="swap")
                 console.print(
@@ -88,7 +97,7 @@ async def main():
                 )
                 input()
 
-            elif action == "6":
+            elif action == "7":
                 console.print("\n[bold cyan]Exit.[/]")
                 sys.exit(0)
 

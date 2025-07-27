@@ -67,6 +67,7 @@ class BaseHttpClient:
         json_data: Optional[Dict] = None,
         params: Optional[Dict] = None,
         headers: Optional[Dict] = None,
+        cookies: Optional[Dict] = None,
         timeout: int = 30,
         retries: int = 5,
     ) -> Tuple[bool, str]:
@@ -86,7 +87,10 @@ class BaseHttpClient:
         Returns:
             (bool, data): Success status and response data
         """
-        base_headers = await self.get_headers(headers)
+        if not headers:
+            base_headers = await self.get_headers(headers)
+        else:
+            base_headers = headers
 
         # Configure request parameters
         request_kwargs = {
@@ -96,6 +100,7 @@ class BaseHttpClient:
             "cookies": self.cookies,
             "timeout": timeout,
         }
+        print(request_kwargs)
         # Add optional parameters
         if json_data is not None:
             request_kwargs["json"] = json_data

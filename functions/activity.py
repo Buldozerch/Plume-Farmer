@@ -5,7 +5,7 @@ import random
 from libs.eth_async import create_client
 from libs.eth_async import TokenAmount
 from fake_useragent import UserAgent
-from tasks.plume import Bridge, PlumeSwap
+from tasks.plume import Bridge, PlumeSwap, PlumeRegister
 from utils.resource_manager import ResourceManager
 from libs.eth_async.utils.utils import parse_proxy
 from utils.db_api_async.db_api import Session
@@ -83,6 +83,7 @@ async def main_process(user: User):
     time_for_sleep = random.uniform(startup_min, startup_max)
     logger.info(f"Start wallet {user} after {int(time_for_sleep)} seconds.")
     await asyncio.sleep(time_for_sleep)
+    await process_register(user=user)
     bridge = await process_bridge(user=user)
     if not bridge:
         logger.error(f"{user} can't bridge")
@@ -233,6 +234,59 @@ async def process_bridge_withdraw(user: User, to: str, delay: bool = False):
             continue
     return False
 
+async def process_register(user: User):
+    startup_min, startup_max = settings.get_wallet_startup_delay()
+    time_for_sleep = random.uniform(startup_min, startup_max)
+    logger.info(f"Start wallet {user} after {int(time_for_sleep)} seconds.")
+    await asyncio.sleep(time_for_sleep)
+    client = create_client(
+        private_key=user.private_key, network="Plume", proxy=user.proxy
+    )
+    auto_replace, max_failures = settings.get_resource_settings()
+    resource_manager = ResourceManager()
+    proxy_errors = 0
+    auto_replace, max_failures = settings.get_resource_settings()
+    for _ in range(max_failures):
+        try:
+            await client.wallet.nonce()
+            break
+        except Exception as e:
+            proxy_errors += 1
+            logger.warning(f"{user} Maybe proxy trouble {e}")
+
+            # Добавляем задержку после ошибки
+            error_delay = random.uniform(2, 3)
+            logger.info(f"{user} delay {error_delay:.1f} seconds. after error")
+            await asyncio.sleep(error_delay)
+
+            if proxy_errors >= 3:
+                await resource_manager.mark_proxy_as_bad(user.id)
+
+                if auto_replace:
+                    success, message = await resource_manager.replace_proxy(user.id)
+                    if success:
+                        logger.info(f"{user} proxy replaced: {message}, try again...")
+
+                        async with Session() as session:
+                            db = DB(session=session)
+                            user = await db.get_user(user_id=user.id)
+
+                        continue
+                    else:
+                        logger.error(
+                            f"{user} can't replace proxy: {message} try again after 120 seconds"
+                        )
+                        await asyncio.sleep(120)
+                        continue
+            else:
+                continue
+    register = PlumeRegister(user=user, client=client)
+    success = await register.handle_register()
+    if success:
+        return True
+    else:
+        return False
+
 
 async def process_bridge(user: User, delay: bool = False):
     user = user
@@ -374,6 +428,11 @@ async def process_tasks(specific_task: str):
         if specific_task == "main":
             for i, wallet in enumerate(wallets):
                 task = asyncio.create_task(main_process(wallet))
+                tasks.append(task)
+
+        elif specific_task == "register":
+            for i, wallet in enumerate(wallets):
+                task = asyncio.create_task(process_register(wallet))
                 tasks.append(task)
 
         elif specific_task == "bridge":

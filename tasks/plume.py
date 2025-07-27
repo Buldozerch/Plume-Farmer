@@ -1,6 +1,8 @@
 from eth_typing.encoding import HexStr
+import uuid
 import json
 from libs.eth_async.data.models import TxArgs
+from eth_account.messages import encode_defunct
 from web3.types import TxParams
 from data.contracts import Contracts
 from tasks.base import Base
@@ -204,3 +206,88 @@ class PlumeSwap(Base, BaseHttpClient):
                 return True
             else:
                 return False
+
+class PlumeRegister(Base, BaseHttpClient):
+    def __init__(self, user, client):
+        Base.__init__(self, user=user, client=client)  # Прямой вызов Base
+        BaseHttpClient.__init__(self, user=user)
+
+    def get_register_headers(self):
+        headers = {
+            'accept': '*/*',
+            'content-type': 'application/json',
+            'dnt': '1',
+            'origin': 'https://portal.plume.org',
+            'priority': 'u=1, i',
+            'referer': 'https://portal.plume.org/',
+            'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+            'user-agent': f'{self.user.user_agent}',
+            'x-device-id': f'{uuid.uuid4()}',
+        }
+        return headers
+
+    async def sign_message(self, message):
+        try:
+            
+            # Кодируем сообщение для подписи
+            message_hash = encode_defunct(text=message)
+            
+            # Подписываем
+            signed_message = self.client.account.sign_message(message_hash)
+            
+            logger.debug(f"{self.user} success sign message 0x{signed_message.signature.hex()}")
+            return '0x' + signed_message.signature.hex()
+            
+        except Exception as e:
+            logger.error(f"{self.user} wrong with sign message {e}")
+            return None
+
+    async def request_message(self):
+        url_sign_message = 'https://portal-api.plume.org/api/v1/auth/sigMessage'
+        headers = self.get_register_headers()
+        params = {
+            'walletAddress': f'{self.user.public_key}',
+        }
+        response, data = await self.request(url=url_sign_message, method="get", headers=headers, params=params)
+        if response:
+            logger.debug(f"{self.user} success get message {data['message']}")
+            message = data["message"]
+            return message
+    
+    async def request_login(self, signature):
+        url_login = 'https://portal-api.plume.org/api/v1/auth/login'
+        headers = self.get_register_headers()
+        json_data = {
+            'walletAddress': f'{self.user.public_key}',
+            'signature': f'{signature}',
+            'referredByCode': None,
+        }
+        response, data = await self.request(url=url_login, method="post", headers=headers, json_data=json_data)
+        if response and data:
+            is_new_user = data["isNewUser"]
+            if is_new_user:
+                logger.success(f"{self.user} success register wallet")
+            else:
+                logger.warning(f"{self.user} account already registered")
+            return True
+
+    async def handle_register(self):
+        while True:
+            try:
+                message = await self.request_message()
+                if message:
+                    signature = await self.sign_message(message=message)
+                    if signature:
+                        login = await self.request_login(signature=signature)
+                        if login: return True
+            except Exception as e:
+                logger.error(f"{self.user} error with register {e}")
+                await asyncio.sleep(5)
+                continue
+
+
+
