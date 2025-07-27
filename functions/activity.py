@@ -95,24 +95,25 @@ async def get_random_network_for_bridge(user: User):
             private_key=user.private_key, network="Base", proxy=user.proxy
         )
         balance_base = await client_base.wallet.balance()
-        if balance_base >= MINIMAL_BALANCE_FOR_WORK:
+        await client_base.close()
+        if balance_base.Ether >= MINIMAL_BALANCE_FOR_WORK:
             balance_ready_for_work.append("Base")
     if use_arbitrum:
         client_arb = create_client(
             private_key=user.private_key, network="Arbitrum", proxy=user.proxy
         )
         balance_arb = await client_arb.wallet.balance()
+        await client_arb.close()
 
-        if balance_arb >= MINIMAL_BALANCE_FOR_WORK:
+        if balance_arb.Ether >= MINIMAL_BALANCE_FOR_WORK:
             balance_ready_for_work.append("Arbitrum")
     if use_optimism:
         client_op = create_client(
             private_key=user.private_key, network="Optimism", proxy=user.proxy
         )
-
         balance_op = await client_op.wallet.balance()
-
-        if balance_op >= MINIMAL_BALANCE_FOR_WORK:
+        await client_op.close()
+        if balance_op.Ether >= MINIMAL_BALANCE_FOR_WORK:
             balance_ready_for_work.append("Optimism")
     if balance_ready_for_work:
         random.shuffle(balance_ready_for_work)
