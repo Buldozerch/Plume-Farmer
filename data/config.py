@@ -17,6 +17,7 @@ ABIS_DIR = os.path.join(ROOT_DIR, "abis")
 
 PROXY_FILE = os.path.join(FILES_DIR, "proxy.txt")
 PRIVATE_FILE = os.path.join(FILES_DIR, "private.txt")
+WITHDRAW_FILE = os.path.join(FILES_DIR, "withdraw_address.txt")
 ENV_FILE = os.path.join(ROOT_DIR, ".env")
 
 RESERVE_PROXY_FILE = os.path.join(FILES_DIR, "reserve_proxy.txt")

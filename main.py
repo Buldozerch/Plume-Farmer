@@ -33,7 +33,8 @@ def print_menu():
     menu.add_row("2)", "Main process for all wallets")
     menu.add_row("3)", "Bridge ETH from ARB/OP/BASE to Plume")
     menu.add_row("4)", "Wrap and Unwrap Plume")
-    menu.add_row("5)", "Exit")
+    menu.add_row("5)", "Withdraw from Plume and Send to Exchange Wallet")
+    menu.add_row("6)", "Exit")
 
     console.print(menu)
 
@@ -80,6 +81,14 @@ async def main():
                 input()
 
             elif action == "5":
+                console.print("\n[bold cyan]Start Withdraw activity.[/]")
+                await process_tasks(specific_task="swap")
+                console.print(
+                    "[bold green]Withdraw done. Press Enter to continue...[/]"
+                )
+                input()
+
+            elif action == "6":
                 console.print("\n[bold cyan]Exit.[/]")
                 sys.exit(0)
 

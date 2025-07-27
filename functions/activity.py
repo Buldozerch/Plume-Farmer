@@ -31,6 +31,13 @@ if os.path.exists(proxy_file):
 else:
     proxys = []
 
+withdraw_file = config.WITHDRAW_FILE
+if os.path.exists(withdraw_file):
+    with open(withdraw_file, "r") as withdraw_file:
+        withdraws = [line.strip() for line in withdraw_file if line.strip()]
+else:
+    withdraws = []
+
 MINIMAL_BALANCE_FOR_WORK = 0.0008
 
 
@@ -84,6 +91,23 @@ async def main_process(user: User):
     if swaps:
         logger.success(f"{user} work done")
         return True
+
+
+async def withdraw(user: User):
+    if settings.get_withdraw_settings:
+        if not withdraws or not withdraws[user.id]:
+            logger.error("Put Addresses for withdraw in files/withdraw_address.txt")
+            return False
+        else:
+            to = withdraws[user.id]
+    else:
+        to = user.public_key
+    user = user
+    startup_min, startup_max = settings.get_wallet_startup_delay()
+    time_for_sleep = random.uniform(startup_min, startup_max)
+    logger.info(f"Start wallet {user} after {int(time_for_sleep)} seconds.")
+    await asyncio.sleep(time_for_sleep)
+    await process_bridge_withdraw(user=user, to=to)
 
 
 async def get_random_network_for_bridge(user: User):
@@ -169,6 +193,45 @@ async def check_plume_balance(user: User):
         return True
     else:
         return False
+
+
+async def process_bridge_withdraw(user: User, to: str, delay: bool = False):
+    user = user
+    if not await check_plume_balance(user=user):
+        logger.info(f"{user} don't have balance in Plume")
+        return False
+    if delay:
+        startup_min, startup_max = settings.get_wallet_startup_delay()
+        time_for_sleep = random.uniform(startup_min, startup_max)
+        logger.info(f"Start wallet {user} after {int(time_for_sleep)} seconds.")
+        await asyncio.sleep(time_for_sleep)
+    client = create_client(
+        private_key=user.private_key, network="Plume", proxy=user.proxy
+    )
+
+    auto_replace, max_failures = settings.get_resource_settings()
+    for _ in range(max_failures):
+        try:
+            swap = PlumeSwap(user=user, client=client)
+            unwrap_plume = await swap.unwrap_plume()
+            await asyncio.sleep(5)
+            if not unwrap_plume:
+                continue
+            balance = await client.wallet.balance()
+            bridge = Bridge(user=user, client=client)
+            balance = int(balance.Wei * 0.99)
+            amount = TokenAmount(amount=balance, wei=True)
+            bridge = await bridge.bridge_from_plume(amount=amount, to=to)
+            return True
+        except Exception as e:
+            logger.error(f"{user} error with bridge from Plume {e}")
+            random_time_for_sleep = random.randint(0, 30)
+            logger.warning(
+                f"{user} sleep {random_time_for_sleep} seconds before new try"
+            )
+            await asyncio.sleep(random_time_for_sleep)
+            continue
+    return False
 
 
 async def process_bridge(user: User, delay: bool = False):
@@ -321,6 +384,11 @@ async def process_tasks(specific_task: str):
         elif specific_task == "swaps":
             for i, wallet in enumerate(wallets):
                 task = asyncio.create_task(process_swap(wallet, delay=True))
+                tasks.append(task)
+
+        elif specific_task == "withdraw":
+            for i, wallet in enumerate(wallets):
+                task = asyncio.create_task(withdraw(wallet))
                 tasks.append(task)
 
         if not tasks:

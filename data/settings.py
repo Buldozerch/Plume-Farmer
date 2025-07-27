@@ -9,6 +9,7 @@ class Settings(Singleton, AutoRepr):
         if type(json_data) is not dict:
             return
 
+        self.use_withdraw_address = json_data.get("withdraw", True)
         self.use_base_bridge = json_data.get("bridge", {}).get("use_base", True)
 
         self.use_arbitrum_bridge = json_data.get("bridge", {}).get("use_arbitrum", True)
@@ -40,6 +41,9 @@ class Settings(Singleton, AutoRepr):
         self.resources_max_failures = json_data.get("resources", {}).get(
             "max_failures", 3
         )
+
+    def get_withdraw_settings(self) -> tuple:
+        return self.use_withdraw_address
 
     def get_bridge_settings(self) -> tuple:
         return self.use_base_bridge, self.use_arbitrum_bridge, self.use_optimism_bridge

@@ -17,6 +17,10 @@ def create_files():
         with open(config.PROXY_FILE, "w") as f:
             pass
 
+    if not os.path.exists(config.WITHDRAW_FILE):
+        with open(config.WITHDRAW_FILE, "w") as f:
+            pass
+
     if not os.path.exists(config.RESERVE_PROXY_FILE):
         with open(config.RESERVE_PROXY_FILE, "w") as f:
             pass
