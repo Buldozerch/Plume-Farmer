@@ -205,6 +205,7 @@ async def process_bridge(user: User, delay: bool = False):
                     else:
                         logger.info(f"{user} wait for Plume Arrived")
                         await asyncio.sleep(5)
+                        continue
             return True
         except Exception as e:
             logger.error(f"{user} error with bridge to Plume {e}")
