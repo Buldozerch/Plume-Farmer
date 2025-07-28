@@ -267,10 +267,8 @@ async def process_bridge_withdraw(user: User, to: str, delay: bool = False):
     for _ in range(max_failures):
         try:
             swap = PlumeSwap(user=user, client=client)
-            unwrap_plume = await swap.unwrap_plume()
+            await swap.unwrap_plume()
             await asyncio.sleep(5)
-            if not unwrap_plume:
-                continue
             balance = await client.wallet.balance()
             if balance.Ether < 3:
                 logger.warning(f"{user} balance too small")
