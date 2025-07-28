@@ -272,6 +272,9 @@ async def process_bridge_withdraw(user: User, to: str, delay: bool = False):
             if not unwrap_plume:
                 continue
             balance = await client.wallet.balance()
+            if balance.Ether < 3:
+                logger.warning(f"{user} balance too small")
+                return True
             bridge = Bridge(user=user, client=client)
             balance = int(balance.Wei * 0.99)
             amount = TokenAmount(amount=balance, wei=True)
