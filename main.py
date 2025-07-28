@@ -83,7 +83,7 @@ async def main():
 
             elif action == "5":
                 console.print("\n[bold cyan]Start Wrap/Unwrap activity.[/]")
-                await process_tasks(specific_task="swap")
+                await process_tasks(specific_task="swaps")
                 console.print(
                     "[bold green]Wrap/Unwrap done. Press Enter to continue...[/]"
                 )
@@ -91,7 +91,7 @@ async def main():
 
             elif action == "6":
                 console.print("\n[bold cyan]Start Withdraw activity.[/]")
-                await process_tasks(specific_task="swap")
+                await process_tasks(specific_task="withdraw")
                 console.print(
                     "[bold green]Withdraw done. Press Enter to continue...[/]"
                 )
