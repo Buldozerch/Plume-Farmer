@@ -76,9 +76,57 @@ async def add_wallets_db():
     logger.success("Import wallets success")
     return
 
+async def get_nonce(user: User):
+    client = create_client(
+        private_key=user.private_key, network="Plume", proxy=user.proxy
+    )
+    auto_replace, max_failures = settings.get_resource_settings()
+    resource_manager = ResourceManager()
+    proxy_errors = 0
+    nonce = 0
+    auto_replace, max_failures = settings.get_resource_settings()
+    for _ in range(max_failures):
+        try:
+            nonce = await client.wallet.nonce()
+            break
+        except Exception as e:
+            proxy_errors += 1
+            logger.warning(f"{user} Maybe proxy trouble {e}")
+
+            # Добавляем задержку после ошибки
+            error_delay = random.uniform(2, 3)
+            logger.info(f"{user} delay {error_delay:.1f} seconds. after error")
+            await asyncio.sleep(error_delay)
+
+            if proxy_errors >= 3:
+                await resource_manager.mark_proxy_as_bad(user.id)
+
+                if auto_replace:
+                    success, message = await resource_manager.replace_proxy(user.id)
+                    if success:
+                        logger.info(f"{user} proxy replaced: {message}, try again...")
+
+                        async with Session() as session:
+                            db = DB(session=session)
+                            user = await db.get_user(user_id=user.id)
+
+                        continue
+                    else:
+                        logger.error(
+                            f"{user} can't replace proxy: {message} try again after 120 seconds"
+                        )
+                        await asyncio.sleep(120)
+                        continue
+            else:
+                continue
+    return nonce
 
 async def main_process(user: User):
     user = user
+    nonce = await get_nonce(user=user)
+    if int(nonce) >= 400:
+        logger.info(f"{user} Account already have 400+ transactions")
+        return True
     startup_min, startup_max = settings.get_wallet_startup_delay()
     time_for_sleep = random.uniform(startup_min, startup_max)
     logger.info(f"Start wallet {user} after {int(time_for_sleep)} seconds.")
@@ -103,6 +151,11 @@ async def withdraw(user: User):
             to = withdraws[user.id]
     else:
         to = user.public_key
+
+    nonce = await get_nonce(user=user)
+    if int(nonce) < 400:
+        logger.info(f"{user} Account don't have 400 transactions in Plume Network")
+        return True
     user = user
     startup_min, startup_max = settings.get_wallet_startup_delay()
     time_for_sleep = random.uniform(startup_min, startup_max)
@@ -242,44 +295,7 @@ async def process_register(user: User):
     client = create_client(
         private_key=user.private_key, network="Plume", proxy=user.proxy
     )
-    auto_replace, max_failures = settings.get_resource_settings()
-    resource_manager = ResourceManager()
-    proxy_errors = 0
-    auto_replace, max_failures = settings.get_resource_settings()
-    for _ in range(max_failures):
-        try:
-            await client.wallet.nonce()
-            break
-        except Exception as e:
-            proxy_errors += 1
-            logger.warning(f"{user} Maybe proxy trouble {e}")
-
-            # Добавляем задержку после ошибки
-            error_delay = random.uniform(2, 3)
-            logger.info(f"{user} delay {error_delay:.1f} seconds. after error")
-            await asyncio.sleep(error_delay)
-
-            if proxy_errors >= 3:
-                await resource_manager.mark_proxy_as_bad(user.id)
-
-                if auto_replace:
-                    success, message = await resource_manager.replace_proxy(user.id)
-                    if success:
-                        logger.info(f"{user} proxy replaced: {message}, try again...")
-
-                        async with Session() as session:
-                            db = DB(session=session)
-                            user = await db.get_user(user_id=user.id)
-
-                        continue
-                    else:
-                        logger.error(
-                            f"{user} can't replace proxy: {message} try again after 120 seconds"
-                        )
-                        await asyncio.sleep(120)
-                        continue
-            else:
-                continue
+    await get_nonce(user=user)
     register = PlumeRegister(user=user, client=client)
     success = await register.handle_register()
     if success:
