@@ -251,9 +251,6 @@ async def check_plume_balance(user: User):
 
 async def process_bridge_withdraw(user: User, to: str, delay: bool = False):
     user = user
-    if not await check_plume_balance(user=user):
-        logger.info(f"{user} don't have balance in Plume")
-        return False
     if delay:
         startup_min, startup_max = settings.get_wallet_startup_delay()
         time_for_sleep = random.uniform(startup_min, startup_max)
