@@ -35,6 +35,7 @@ def create_files():
         current_settings = {}
 
     settings = {
+        "withdraw": True,
         "bridge": {"use_base": True, "use_arbitrum": True, "use_optimism": True, "max_eth_for_bridge": 0.001},
         "wallets": {
             "range": {
