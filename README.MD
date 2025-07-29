@@ -60,7 +60,7 @@ Settings support randomization. Use min/max ranges for random values:
 - `wallet_range` - Range of wallets to process (e.g., `{"start": 0, "end": 0}`; `end: 0` processes all wallets).
 - `resource_settings.auto_replace` - Enable/disable automatic proxy replacement on errors (true/false).
 - `resource_settings.max_failures` - Maximum allowed proxy failures before replacement.
-- `bridge_settings` - Enable/disable specific networks for bridging (e.g., `{"use_base": true, "use_arbitrum": true, "use_optimism": false}`).
+- `bridge_settings` - Enable/disable specific networks for bridging and max ETH for bridge (e.g., `{"use_base": true, "use_arbitrum": true, "use_optimism": false}`).
 - `wallet_transactins_delay` - Delay range between swap transactions (seconds, e.g., `{"min": 10, "max": 30}`).
 - `use_withdraw_address` - Use addresses from `withdraw_address.txt` for withdrawals (true) or withdraw to the same wallet (false).
 
@@ -182,7 +182,7 @@ python main.py
 - `wallet_range` - Диапазон кошельков для обработки (например, `{"start": 0, "end": 0}`; `end: 0` обрабатывает все кошельки).
 - `resource_settings.auto_replace` - Включение/отключение автоматической замены прокси при ошибках (true/false).
 - `resource_settings.max_failures` - Максимальное количество ошибок прокси перед заменой.
-- `bridge_settings` - Включение/отключение определенных сетей для переброски (например, `{"use_base": true, "use_arbitrum": true, "use_optimism": false}`).
+- `bridge_settings` - Включение/отключение определенных сетей для бриджа и максимальное допустимое количество eth для бриджа(например, `{"use_base": true, "use_arbitrum": true, "use_optimism": false}`).
 - `wallet_transactins_delay` - Диапазон задержек между транзакциями свопов (в секундах, например, `{"min": 10, "max": 30}`).
 - `use_withdraw_address` - Использовать адреса из `withdraw_address.txt` для вывода (true) или выводить на тот же кошелек (false).
 

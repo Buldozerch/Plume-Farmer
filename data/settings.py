@@ -15,6 +15,7 @@ class Settings(Singleton, AutoRepr):
         self.use_arbitrum_bridge = json_data.get("bridge", {}).get("use_arbitrum", True)
 
         self.use_optimism_bridge = json_data.get("bridge", {}).get("use_optimism", True)
+        self.max_eth_for_bridge = json_data.get("bridge", {}).get("max_eth_for_bridge", 0.001)
         self.wallet_range_start = (
             json_data.get("wallets", {}).get("range", {}).get("start", 0)
         )
