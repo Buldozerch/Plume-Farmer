@@ -324,8 +324,8 @@ async def process_bridge(user: User, delay: bool = False):
         try:
             balance = await client.wallet.balance()
             bridge = Bridge(user=user, client=client)
-            if balance.Ether > settings.max_eth_for_bridge:
-                balance = TokenAmount(amount=settings.max_eth_for_bridge)
+            if balance.Ether > settings.max_eth_for_bridge():
+                balance = TokenAmount(amount=settings.max_eth_for_bridge())
             balance = int(balance.Wei * 0.95)
             amount = TokenAmount(amount=balance, wei=True)
             bridge = await bridge.bridge_to_plume(amount=amount)
