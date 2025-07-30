@@ -143,7 +143,7 @@ async def main_process(user: User):
 
 
 async def withdraw(user: User):
-    if settings.get_withdraw_settings:
+    if settings.get_withdraw_settings():
         if not withdraws or not withdraws[user.id]:
             logger.error("Put Addresses for withdraw in files/withdraw_address.txt")
             return False
