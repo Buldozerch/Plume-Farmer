@@ -30,10 +30,10 @@ class Settings(Singleton, AutoRepr):
             json_data.get("wallets", {}).get("startup_delay", {}).get("max", 15)
         )
         self.wallet_transactions_delay_min = (
-            json_data.get("wallets", {}).get("transcations_delay", {}).get("min", 0)
+            json_data.get("wallets", {}).get("transactions_delay", {}).get("min", 0)
         )
         self.wallet_transactions_delay_max = (
-            json_data.get("wallets", {}).get("transcations_delay", {}).get("max", 30)
+            json_data.get("wallets", {}).get("transactions_delay", {}).get("max", 30)
         )
 
         self.resources_auto_replace = json_data.get("resources", {}).get(
