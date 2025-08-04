@@ -313,6 +313,7 @@ async def process_bridge(user: User, delay: bool = False):
         logger.info(f"Start wallet {user} after {int(time_for_sleep)} seconds.")
         await asyncio.sleep(time_for_sleep)
     network = await get_random_network_for_bridge(user=user)
+    logger.debug(f"{user} choose {network} network for bridge")
     if not network:
         raise Exception("Wallet don't have balance in any Network for bridge")
     client = create_client(
@@ -326,6 +327,7 @@ async def process_bridge(user: User, delay: bool = False):
             bridge = Bridge(user=user, client=client)
             if balance.Ether > settings.max_eth_for_bridge:
                 balance = TokenAmount(amount=settings.max_eth_for_bridge)
+            logger.debug(f"{user} {balance.Ether} for bridge to Plume from {network}")
             balance = int(balance.Wei * 0.95)
             amount = TokenAmount(amount=balance, wei=True)
             bridge = await bridge.bridge_to_plume(amount=amount)
