@@ -243,6 +243,7 @@ async def check_plume_balance(user: User):
                         continue
             else:
                 continue
+    logger.debug(f"{user} Plume balance {balance_plume.Ether}")
     if balance_plume.Ether > 5:
         return True
     else:
